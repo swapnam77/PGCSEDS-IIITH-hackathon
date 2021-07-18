@@ -4,7 +4,11 @@ from pydantic import BaseModel
 from ml_utils import load_model, predict, explainability#, retrain
 from typing import List
 import sys
+from fastapi.responses import FileResponse
+# from fastapi.staticfiles import StaticFiles
 sys.setrecursionlimit(10000)
+
+
 
 # defining the main app
 app = FastAPI(title="Bug Predictor", docs_url="/")
@@ -12,6 +16,10 @@ app = FastAPI(title="Bug Predictor", docs_url="/")
 # calling the load_model during startup.
 # this will train the model and keep it loaded for prediction.
 app.add_event_handler("startup", load_model)
+
+# app.mount("/dataset", StaticFiles(directory="static", html = True), name="static")
+
+
 
 # class which is expected in the payload
 class QueryIn(BaseModel):
@@ -67,9 +75,10 @@ def predict_flower(query_data: QueryIn):
 
 @app.get("/explain", status_code=200)
 # Healthcheck route to ensure that the API is up and running
-def explain():
-    exm = explainability()
-    return {"Explainability": exm}
+async def explain():
+    # exm = explainability()
+    some_file_path = "dataset/explainable_AI_starter.html"
+    return FileResponse(some_file_path, filename="explain.html")
 
 # @app.post("/feedback_loop", status_code=200)
 # # Route to further train the model based on user input in form of feedback loop

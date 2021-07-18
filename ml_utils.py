@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from pandas import read_csv
 import h2o
 from h2o.automl import H2OAutoML
+import subprocess
 
 # define a Gaussain NB classifier
 clf = RandomForestClassifier(max_depth=3, random_state=0)
@@ -30,6 +31,12 @@ def load_model():
     # calculate the print the accuracy score
     acc = accuracy_score(y_test, clf.predict(X_test))
     print(f"Model trained with accuracy: {round(acc, 3)}")
+    subprocess.call(["jupyter","nbconvert","--to","notebook","--inplace","--execute","dataset/explainable_AI_starter.ipynb"])
+    subprocess.call(["jupyter","nbconvert","dataset/explainable_AI_starter.ipynb","--no-input","--to","html"])
+    print("Explainability file generated")
+
+# def load_explainability():
+
 
 
 # function to predict the flower using the model
