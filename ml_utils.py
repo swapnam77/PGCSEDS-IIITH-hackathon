@@ -31,6 +31,8 @@ def load_model():
     # calculate the print the accuracy score
     acc = accuracy_score(y_test, clf.predict(X_test))
     print(f"Model trained with accuracy: {round(acc, 3)}")
+
+    #Generating Explainability File
     subprocess.call(["jupyter","nbconvert","--to","notebook","--inplace","--execute","dataset/explainable_AI_starter.ipynb"])
     subprocess.call(["jupyter","nbconvert","dataset/explainable_AI_starter.ipynb","--no-input","--to","html"])
     print("Explainability file generated")
@@ -46,37 +48,11 @@ def predict(query_data):
     print(f"Model prediction: {classes[prediction]}")
     return classes[prediction]
 
-def explainability():
-    h2o.init()
-
-    # Import wine quality dataset
-    f = "dataset/bug_pred.csv"
-    df = h2o.import_file(f)
-
-    # Reponse column
-    y = "defects"
-
-    # Split into train & test
-    splits = df.split_frame(ratios = [0.8], seed = 1)
-    train = splits[0]
-    test = splits[1]
-
-    # Run AutoML for 1 minute
-    aml = H2OAutoML(max_runtime_secs=60, seed=1)
-    aml.train(y=y, training_frame=train)
-
-    # Explain leader model & compare with all AutoML models
-    # exa = aml.explain(test)
-
-    # Explain a single H2O model (e.g. leader model from AutoML)
-    exm = aml.leader.explain(test)
-    return exm
-
 # function to retrain the model as part of the feedback loop
-# def retrain(data):
-#     # pull out the relevant X and y from the FeedbackIn object
-#     X = [list(d.dict().values())[:-1] for d in data]
-#     y = [r_classes[d.flower_class] for d in data]
+def retrain(data):
+    # pull out the relevant X and y from the FeedbackIn object
+    X = [list(d.dict().values())[:-1] for d in data]
+    y = [r_classes[d.defect] for d in data]
 
-#     # fit the classifier again based on the new data obtained
-#     clf.fit(X, y)
+    # fit the classifier again based on the new data obtained
+    clf.fit(X, y)
